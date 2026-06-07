@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   // ============ Countdown Timer ============
-  const weddingDate = new Date('December 15, 2026 19:00:00').getTime();
+  const weddingDate = new Date('September 12, 2026 18:30:00').getTime();
 
   function updateCountdown() {
     const now = new Date().getTime();
@@ -359,23 +359,19 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
 
-  // ============ Gallery Image Lazy Loading ============
-  const lazyImages = document.querySelectorAll('img[src]');
-  const imageObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const img = entry.target;
-        img.style.opacity = '0';
-        img.addEventListener('load', () => {
-          img.style.transition = 'opacity 0.5s ease';
-          img.style.opacity = '1';
-        });
-        imageObserver.unobserve(img);
-      }
-    });
+  // ============ Gallery Image Fade-In on Load ============
+  const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+  lazyImages.forEach(img => {
+    if (img.complete) {
+      img.style.opacity = '1';
+    } else {
+      img.style.opacity = '0';
+      img.style.transition = 'opacity 0.6s ease';
+      img.addEventListener('load', () => {
+        img.style.opacity = '1';
+      });
+    }
   });
-
-  lazyImages.forEach(img => imageObserver.observe(img));
 
 
   // ============ Magnetic Button Effect ============

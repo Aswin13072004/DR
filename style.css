@@ -1568,6 +1568,47 @@ a {
 
 /* ---------- Responsive ---------- */
 @media (max-width: 991px) {
+  /* Mobile Navbar Fixes */
+  .navbar-wedding {
+    padding: 12px 1.25rem !important;
+  }
+  .navbar-toggler {
+    padding: 6px 10px !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  .navbar-toggler:focus {
+    box-shadow: none !important;
+    outline: none !important;
+  }
+  .navbar-collapse {
+    background: rgba(254, 252, 249, 0.98);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    padding: 20px 25px;
+    border-bottom: 2px solid var(--clr-primary-light);
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    z-index: 999;
+  }
+  .navbar-nav {
+    align-items: flex-start !important;
+    gap: 12px !important;
+    width: 100%;
+  }
+  .nav-link-wedding {
+    padding: 6px 0 !important;
+    font-size: 0.9rem !important;
+  }
+  .nav-link-wedding::after {
+    left: 0;
+    transform: none;
+  }
+
   .hero-script-name { font-size: 3.5rem; }
   .hero-heading { font-size: 2.5rem; }
   .hero-image-grid { height: 400px; gap: 10px; }
