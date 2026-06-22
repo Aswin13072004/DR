@@ -1,6 +1,6 @@
 /* ======================================================
    Deepak & Rohini — Ultra-Premium Wedding Experience
-   GSAP + Lenis + Canvas Particles + Micro-Interactions
+   GSAP + Lenis + Canvas Particles + Micro-Interactions v2.0
    ====================================================== */
 
 (function () {
@@ -28,18 +28,34 @@
   gsap.ticker.lagSmoothing(0);
 
 
-  // ═══════════ PRELOADER ═══════════
+  // ═══════════ PRELOADER (CINEMATIC V2) ═══════════
   const preloader = document.getElementById('preloader');
   const preloaderMonogram = document.getElementById('preloaderMonogram');
   const preloaderNames = document.getElementById('preloaderNames');
   const preloaderTagline = document.getElementById('preloaderTagline');
   const preloaderLine = document.getElementById('preloaderLine');
+  const preloaderParticles = document.getElementById('preloaderParticles');
+
+  // Create floating preloader dots
+  if (preloaderParticles) {
+    for (let i = 0; i < 20; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'preloader__dot';
+      dot.style.width = Math.random() * 4 + 2 + 'px';
+      dot.style.height = dot.style.width;
+      dot.style.background = `rgba(${Math.random() > 0.5 ? '201,168,124' : '255,255,255'}, ${Math.random() * 0.5 + 0.1})`;
+      dot.style.left = Math.random() * 100 + '%';
+      dot.style.top = Math.random() * 100 + '%';
+      dot.style.animationDelay = Math.random() * 4 + 's';
+      preloaderParticles.appendChild(dot);
+    }
+  }
 
   const preloaderTL = gsap.timeline({
     onComplete: () => {
       gsap.to(preloader, {
         opacity: 0,
-        duration: 0.8,
+        duration: 1.2,
         ease: 'power2.inOut',
         onComplete: () => {
           preloader.style.display = 'none';
@@ -51,53 +67,60 @@
     }
   });
 
-  // Phase 1: Line draws
+  // Fade in preloader background elements
+  gsap.to(preloaderParticles, { opacity: 1, duration: 1 });
+
+  // Phase 1: Line draws from center
   preloaderTL.to(preloaderLine, {
     scaleX: 1,
     opacity: 1,
-    duration: 0.8,
-    ease: 'power2.out'
+    duration: 1,
+    ease: 'power3.inOut'
   });
 
-  // Phase 2: Monogram appears
+  // Phase 2: Monogram elegant fade up
   preloaderTL.to(preloaderMonogram, {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    duration: 1.2,
+    ease: 'power3.out'
+  }, '-=0.4');
+
+  // Phase 3: Names dramatic tracking expansion
+  preloaderTL.to(preloaderNames, {
+    opacity: 1,
+    y: 0,
+    letterSpacing: window.innerWidth < 768 ? '6px' : '12px',
+    duration: 1.5,
+    ease: 'power3.out'
+  }, '-=0.6');
+
+  // Phase 4: Tagline appears softly
+  preloaderTL.to(preloaderTagline, {
     opacity: 1,
     y: 0,
     duration: 1,
     ease: 'power3.out'
-  }, '-=0.3');
+  }, '-=0.8');
 
-  // Phase 3: Names appear
-  preloaderTL.to(preloaderNames, {
-    opacity: 1,
-    y: 0,
-    duration: 0.8,
-    ease: 'power3.out'
-  }, '-=0.4');
-
-  // Phase 4: Tagline appears
-  preloaderTL.to(preloaderTagline, {
-    opacity: 1,
-    y: 0,
-    duration: 0.8,
-    ease: 'power3.out'
-  }, '-=0.3');
-
-  // Phase 5: Hold, then fade everything
-  preloaderTL.to([preloaderMonogram, preloaderNames, preloaderTagline, preloaderLine], {
+  // Phase 5: Hold, then cinematic push back and fade
+  preloaderTL.to('.preloader__content', {
+    scale: 0.9,
     opacity: 0,
-    y: -20,
-    duration: 0.6,
-    stagger: 0.05,
-    ease: 'power2.in',
-    delay: 0.8
+    duration: 1,
+    ease: 'power2.inOut',
+    delay: 1.2
   });
 
   // Set initial states
-  gsap.set([preloaderMonogram, preloaderNames, preloaderTagline], { y: 20, opacity: 0 });
+  gsap.set(preloaderMonogram, { y: 30, opacity: 0, filter: 'blur(10px)' });
+  gsap.set(preloaderNames, { y: 20, opacity: 0, letterSpacing: '4px' });
+  gsap.set(preloaderTagline, { y: 20, opacity: 0 });
   gsap.set(preloaderLine, { scaleX: 0, opacity: 0 });
+  gsap.set(preloaderParticles, { opacity: 0 });
 
-  // Failsafe: hide preloader after 6 seconds
+  // Failsafe
   setTimeout(() => {
     if (preloader.style.display !== 'none') {
       preloaderTL.kill();
@@ -110,7 +133,7 @@
         }
       });
     }
-  }, 6000);
+  }, 7000);
 
 
   // ═══════════ GOLD PARTICLES (Canvas) ═══════════
@@ -139,18 +162,22 @@
       this.opacity = Math.random() * 0.15 + 0.05;
       this.life = Math.random() * 300 + 200;
       this.age = 0;
-      // Gold color variations
       const colors = [
         '201,168,124',  // champagne
         '212,175,55',   // gold
         '183,110,121',  // rose gold
-        '232,213,183',  // champagne light
+        '254,252,249',  // pearl
       ];
       this.color = colors[Math.floor(Math.random() * colors.length)];
     }
     update() {
       this.x += this.speedX;
       this.y += this.speedY;
+      
+      // Floating wave effect
+      this.y += Math.sin(this.age * 0.02) * 0.2;
+      this.x += Math.cos(this.age * 0.01) * 0.1;
+      
       this.age++;
       if (this.age > this.life || this.x < -10 || this.x > canvasW + 10 || this.y < -10 || this.y > canvasH + 10) {
         this.reset();
@@ -161,12 +188,14 @@
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(${this.color}, ${this.opacity * fadeRatio})`;
+      ctx.shadowBlur = this.size * 2;
+      ctx.shadowColor = `rgba(${this.color}, ${this.opacity * fadeRatio})`;
       ctx.fill();
     }
   }
 
-  // Create particles
-  const particleCount = window.innerWidth < 768 ? 25 : 50;
+  // Create particles (optimized count)
+  const particleCount = window.innerWidth < 768 ? 20 : 40;
   for (let i = 0; i < particleCount; i++) {
     particles.push(new Particle());
   }
@@ -182,9 +211,10 @@
   animateParticles();
 
 
-  // ═══════════ CURSOR GLOW ═══════════
+  // ═══════════ CURSOR GLOW (SCREEN BLEND) ═══════════
   const cursorGlow = document.getElementById('cursorGlow');
   let mouseX = 0, mouseY = 0;
+  let glowX = 0, glowY = 0;
 
   if (window.innerWidth > 767) {
     document.addEventListener('mousemove', (e) => {
@@ -192,18 +222,17 @@
       mouseY = e.clientY;
     });
 
+    // Smooth follow using linear interpolation
     function updateCursor() {
-      gsap.to(cursorGlow, {
-        x: mouseX,
-        y: mouseY,
-        duration: 0.8,
-        ease: 'power2.out'
-      });
+      glowX += (mouseX - glowX) * 0.1;
+      glowY += (mouseY - glowY) * 0.1;
+      
+      if (cursorGlow) {
+        cursorGlow.style.transform = `translate(${glowX}px, ${glowY}px)`;
+      }
       requestAnimationFrame(updateCursor);
     }
     updateCursor();
-  } else {
-    cursorGlow.style.display = 'none';
   }
 
 
@@ -214,14 +243,14 @@
   function initHeroSlideshow() {
     if (slides.length === 0) return;
 
-    // Slow zoom on active slide
+    // Cinematic zoom on active slide
     slides.forEach((slide, i) => {
       const img = slide.querySelector('img');
       if (i === 0) {
         gsap.fromTo(img, { scale: 1 }, {
           scale: 1.15,
           duration: 8,
-          ease: 'none'
+          ease: 'power1.out' // Non-linear zoom for cinematic feel
         });
       }
     });
@@ -230,16 +259,16 @@
       const prevSlide = currentSlide;
       currentSlide = (currentSlide + 1) % slides.length;
 
-      // Fade transition
-      slides[prevSlide].classList.remove('active');
-      slides[currentSlide].classList.add('active');
+      // Crossfade
+      gsap.to(slides[prevSlide], { opacity: 0, duration: 2, ease: 'power2.inOut' });
+      gsap.to(slides[currentSlide], { opacity: 1, duration: 2, ease: 'power2.inOut' });
 
       // Zoom effect on new slide
       const img = slides[currentSlide].querySelector('img');
       gsap.fromTo(img, { scale: 1 }, {
         scale: 1.15,
         duration: 8,
-        ease: 'none'
+        ease: 'power1.out'
       });
     }, 6000);
   }
@@ -248,41 +277,87 @@
 
   // ═══════════ HERO CONTENT ANIMATIONS ═══════════
   function initHeroAnimations() {
-    const heroTL = gsap.timeline({ delay: 0.3 });
+    const heroTL = gsap.timeline({ delay: 0.1 });
+
+    // Text splitting for names
+    const names = document.querySelectorAll('.hero__name');
+    names.forEach(name => {
+      const text = name.getAttribute('data-text');
+      name.innerHTML = '';
+      for (let i = 0; i < text.length; i++) {
+        const span = document.createElement('span');
+        span.textContent = text[i];
+        span.style.display = 'inline-block';
+        span.style.opacity = '0';
+        span.style.transform = 'translateY(40px) rotate(10deg)';
+        name.appendChild(span);
+      }
+      name.style.opacity = 1;
+    });
 
     heroTL.to('#heroPreTitle', {
-      opacity: 1, y: 0, duration: 0.8, ease: 'power3.out'
+      opacity: 1, y: 0, duration: 1, ease: 'power3.out'
     })
-    .to('.hero__name', {
-      opacity: 1, y: 0, duration: 1, ease: 'power3.out', stagger: 0.2
-    }, '-=0.4')
-    .to('.hero__ampersand', {
-      opacity: 1, y: 0, scale: 1, duration: 0.6, ease: 'back.out(1.7)'
+    // Animate each letter
+    .to('.hero__name span', {
+      opacity: 1, y: 0, rotation: 0, 
+      duration: 1, ease: 'power3.out', 
+      stagger: 0.04
     }, '-=0.6')
+    .to('.hero__ampersand', {
+      opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'back.out(1.5)'
+    }, '-=0.8')
     .to('#heroHeading', {
-      opacity: 1, y: 0, duration: 0.8, ease: 'power3.out'
-    }, '-=0.3')
+      opacity: 1, y: 0, letterSpacing: window.innerWidth < 768 ? '4px' : '10px', 
+      duration: 1.2, ease: 'power3.out'
+    }, '-=0.6')
     .to('#heroCard', {
-      opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power3.out'
-    }, '-=0.4')
+      opacity: 1, y: 0, filter: 'blur(0px)', duration: 1, ease: 'power3.out'
+    }, '-=0.8')
+    .to('#heroMiniCountdown', {
+      opacity: 1, y: 0, duration: 1, ease: 'power3.out'
+    }, '-=0.8')
     .to('#heroCtas', {
-      opacity: 1, y: 0, duration: 0.8, ease: 'power3.out'
-    }, '-=0.3');
+      opacity: 1, y: 0, duration: 1, ease: 'power3.out'
+    }, '-=0.6')
+    .to('.hero__scroll', {
+      opacity: 1, duration: 1
+    }, '-=0.5');
 
     // Set initial states
     gsap.set('#heroPreTitle', { opacity: 0, y: 20 });
-    gsap.set('.hero__name', { opacity: 0, y: 30 });
-    gsap.set('.hero__ampersand', { opacity: 0, y: 20, scale: 0.5 });
-    gsap.set('#heroHeading', { opacity: 0, y: 20 });
-    gsap.set('#heroCard', { opacity: 0, y: 30, scale: 0.95 });
+    gsap.set('.hero__ampersand', { opacity: 0, y: 20, scale: 0.8 });
+    gsap.set('#heroHeading', { opacity: 0, y: 20, letterSpacing: window.innerWidth < 768 ? '2px' : '6px' });
+    gsap.set('#heroCard', { opacity: 0, y: 40, filter: 'blur(10px)' });
+    gsap.set('#heroMiniCountdown', { opacity: 0, y: 20 });
     gsap.set('#heroCtas', { opacity: 0, y: 20 });
+    gsap.set('.hero__scroll', { opacity: 0 });
+    
+    // Parallax hero content on scroll
+    gsap.to('.hero__content', {
+      y: 150,
+      opacity: 0,
+      scrollTrigger: {
+        trigger: '.hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true
+      }
+    });
   }
 
 
   // ═══════════ SCROLL-TRIGGERED ANIMATIONS ═══════════
   function initScrollAnimations() {
 
-    // Section headers
+    // Floating RSVP Button visibility
+    ScrollTrigger.create({
+      start: 'top -500',
+      end: 99999,
+      toggleClass: {className: 'visible', targets: '.floating-rsvp'}
+    });
+
+    // Section headers reveal
     gsap.utils.toArray('.section-header').forEach(header => {
       const children = header.children;
       gsap.from(children, {
@@ -293,13 +368,29 @@
         },
         y: 40,
         opacity: 0,
-        duration: 0.8,
-        stagger: 0.12,
+        filter: 'blur(5px)',
+        duration: 1,
+        stagger: 0.15,
         ease: 'power3.out'
       });
     });
 
-    // Reveal animations
+    // Timeline progress line
+    const tlProgress = document.getElementById('timelineProgress');
+    if (tlProgress) {
+      gsap.to(tlProgress, {
+        width: '100%',
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.timeline__container',
+          start: 'top center',
+          end: 'bottom center',
+          scrub: true
+        }
+      });
+    }
+
+    // Standard reveal animations
     gsap.utils.toArray('[data-reveal="up"]').forEach(el => {
       gsap.from(el, {
         scrollTrigger: {
@@ -309,7 +400,7 @@
         },
         y: 60,
         opacity: 0,
-        duration: 0.9,
+        duration: 1,
         ease: 'power3.out'
       });
     });
@@ -321,9 +412,9 @@
           start: 'top 85%',
           toggleActions: 'play none none none'
         },
-        x: -80,
+        x: -60,
         opacity: 0,
-        duration: 1,
+        duration: 1.2,
         ease: 'power3.out'
       });
     });
@@ -335,9 +426,9 @@
           start: 'top 85%',
           toggleActions: 'play none none none'
         },
-        x: 80,
+        x: 60,
         opacity: 0,
-        duration: 1,
+        duration: 1.2,
         ease: 'power3.out'
       });
     });
@@ -349,9 +440,9 @@
           start: 'top 85%',
           toggleActions: 'play none none none'
         },
-        scale: 0.85,
+        scale: 0.9,
         opacity: 0,
-        duration: 1,
+        duration: 1.2,
         ease: 'power3.out'
       });
     });
@@ -371,22 +462,22 @@
       });
 
       if (i % 2 === 0) {
-        tl.from(image, { x: -60, opacity: 0, duration: 0.9, ease: 'power3.out' })
-          .from(text, { x: 60, opacity: 0, duration: 0.9, ease: 'power3.out' }, '-=0.6');
+        tl.from(image, { x: -40, opacity: 0, duration: 1, ease: 'power3.out' })
+          .from(text, { x: 40, opacity: 0, duration: 1, ease: 'power3.out' }, '-=0.7');
       } else {
-        tl.from(text, { x: -60, opacity: 0, duration: 0.9, ease: 'power3.out' })
-          .from(image, { x: 60, opacity: 0, duration: 0.9, ease: 'power3.out' }, '-=0.6');
+        tl.from(text, { x: -40, opacity: 0, duration: 1, ease: 'power3.out' })
+          .from(image, { x: 40, opacity: 0, duration: 1, ease: 'power3.out' }, '-=0.7');
       }
 
       if (dot) {
-        tl.from(dot, { scale: 0, opacity: 0, duration: 0.5, ease: 'back.out(2)' }, '-=0.5');
+        tl.from(dot, { scale: 0, opacity: 0, duration: 0.6, ease: 'back.out(2)' }, '-=0.6');
       }
     });
 
     // Timeline image parallax
     gsap.utils.toArray('.timeline__image img').forEach(img => {
       gsap.to(img, {
-        yPercent: -10,
+        yPercent: -15,
         ease: 'none',
         scrollTrigger: {
           trigger: img.closest('.timeline__milestone'),
@@ -407,14 +498,14 @@
         },
         y: 40,
         opacity: 0,
-        duration: 0.7,
+        duration: 0.8,
         delay: (i % 4) * 0.1,
         ease: 'power3.out'
       });
     });
 
     // Event cards stagger
-    gsap.utils.toArray('.event-card').forEach((card, i) => {
+    gsap.utils.toArray('.events .event-card').forEach((card, i) => {
       gsap.from(card, {
         scrollTrigger: {
           trigger: card,
@@ -423,27 +514,56 @@
         },
         y: 50,
         opacity: 0,
-        duration: 0.8,
-        delay: i * 0.1,
+        duration: 0.9,
+        delay: i * 0.15,
         ease: 'power3.out'
       });
     });
-
-    // Countdown blocks stagger
-    gsap.utils.toArray('.countdown__block').forEach((block, i) => {
-      gsap.from(block, {
+    
+    // Dress code & Guest info cards stagger
+    gsap.utils.toArray('.dresscode__card, .guestinfo__card').forEach((card, i) => {
+      gsap.from(card, {
         scrollTrigger: {
-          trigger: block,
-          start: 'top 88%',
+          trigger: card,
+          start: 'top 90%',
           toggleActions: 'play none none none'
         },
         y: 40,
         opacity: 0,
-        scale: 0.9,
-        duration: 0.7,
-        delay: i * 0.12,
+        duration: 0.8,
+        delay: (i % 3) * 0.1,
         ease: 'power3.out'
       });
+    });
+
+    // Countdown blocks stagger & ring animation
+    gsap.utils.toArray('.countdown__block').forEach((block, i) => {
+      const ring = block.querySelector('.countdown__ring-fill');
+      
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: block,
+          start: 'top 88%',
+          toggleActions: 'play none none none'
+        }
+      });
+      
+      tl.from(block, {
+        y: 40,
+        opacity: 0,
+        scale: 0.9,
+        duration: 0.8,
+        ease: 'power3.out',
+        delay: i * 0.1
+      });
+      
+      if (ring) {
+        tl.from(ring, {
+          strokeDashoffset: 339.292,
+          duration: 1.5,
+          ease: 'power2.inOut'
+        }, '-=0.4');
+      }
     });
 
     // Parallax quote backgrounds
@@ -464,22 +584,11 @@
     const footerEl = document.querySelector('.footer');
     if (footerEl) {
       gsap.from('.footer__monogram', {
-        scrollTrigger: { trigger: footerEl, start: 'top 90%' },
+        scrollTrigger: { trigger: footerEl, start: 'top 95%' },
         scale: 0.7, opacity: 0, duration: 1, ease: 'power3.out'
       });
     }
   }
-
-
-  // ═══════════ SCROLL PROGRESS BAR ═══════════
-  const scrollProgress = document.getElementById('scrollProgress');
-
-  window.addEventListener('scroll', () => {
-    const scrollTop = window.scrollY;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = scrollTop / docHeight;
-    scrollProgress.style.transform = `scaleX(${progress})`;
-  });
 
 
   // ═══════════ NAVIGATION ═══════════
@@ -548,6 +657,7 @@
 
   // ═══════════ COUNTDOWN TIMER ═══════════
   const weddingDate = new Date('September 12, 2026 18:30:00').getTime();
+  const circumference = 339.292; // 2 * pi * 54
 
   function updateCountdown() {
     const now = Date.now();
@@ -558,6 +668,14 @@
       document.getElementById('countHours').textContent = '🎉';
       document.getElementById('countMinutes').textContent = '🎉';
       document.getElementById('countSeconds').textContent = '🎉';
+      
+      // Update mini countdown
+      if(document.getElementById('heroCountDays')) {
+        document.getElementById('heroCountDays').textContent = '00';
+        document.getElementById('heroCountHours').textContent = '00';
+        document.getElementById('heroCountMins').textContent = '00';
+        document.getElementById('heroCountSecs').textContent = '00';
+      }
       return;
     }
 
@@ -566,14 +684,31 @@
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
+    // Update main blocks
     smoothUpdate('countDays', days, 3);
     smoothUpdate('countHours', hours, 2);
     smoothUpdate('countMinutes', minutes, 2);
     smoothUpdate('countSeconds', seconds, 2);
+    
+    // Update mini countdown in hero
+    if(document.getElementById('heroCountDays')) {
+      document.getElementById('heroCountDays').textContent = String(days).padStart(2, '0');
+      document.getElementById('heroCountHours').textContent = String(hours).padStart(2, '0');
+      document.getElementById('heroCountMins').textContent = String(minutes).padStart(2, '0');
+      document.getElementById('heroCountSecs').textContent = String(seconds).padStart(2, '0');
+    }
+
+    // Update SVG rings
+    updateRing('ringDays', days, 365);
+    updateRing('ringHours', hours, 24);
+    updateRing('ringMinutes', minutes, 60);
+    updateRing('ringSeconds', seconds, 60);
   }
 
   function smoothUpdate(id, value, pad) {
     const el = document.getElementById(id);
+    if (!el) return;
+    
     const str = String(value).padStart(pad, '0');
     if (el.textContent !== str) {
       gsap.to(el, {
@@ -592,6 +727,19 @@
     }
   }
 
+  function updateRing(id, value, max) {
+    const ring = document.getElementById(id);
+    if (!ring) return;
+    
+    const percent = value / max;
+    const offset = circumference - (percent * circumference);
+    
+    // Don't animate stroke dash if tab is hidden to save performance
+    if (document.visibilityState === 'visible') {
+      ring.style.strokeDashoffset = offset;
+    }
+  }
+
   updateCountdown();
   setInterval(updateCountdown, 1000);
 
@@ -606,27 +754,47 @@
         const x = e.clientX - rect.left - rect.width / 2;
         const y = e.clientY - rect.top - rect.height / 2;
         gsap.to(btn, {
-          x: x * 0.25,
-          y: y * 0.25,
+          x: x * 0.3,
+          y: y * 0.3,
           duration: 0.4,
           ease: 'power2.out'
         });
+        
+        const icon = btn.querySelector('i');
+        if (icon) {
+          gsap.to(icon, {
+            x: x * 0.15,
+            y: y * 0.15,
+            duration: 0.4,
+            ease: 'power2.out'
+          });
+        }
       });
 
       btn.addEventListener('mouseleave', () => {
         gsap.to(btn, {
           x: 0,
           y: 0,
-          duration: 0.6,
-          ease: 'elastic.out(1, 0.5)'
+          duration: 0.7,
+          ease: 'elastic.out(1.2, 0.4)'
         });
+        
+        const icon = btn.querySelector('i');
+        if (icon) {
+          gsap.to(icon, {
+            x: 0,
+            y: 0,
+            duration: 0.7,
+            ease: 'elastic.out(1.2, 0.4)'
+          });
+        }
       });
     });
   }
 
 
   // ═══════════ IMAGE TILT EFFECT ═══════════
-  const tiltItems = document.querySelectorAll('.gallery__item, .event-card');
+  const tiltItems = document.querySelectorAll('.gallery__item, .event-card, .dresscode__card, .guestinfo__card');
 
   if (window.innerWidth > 767) {
     tiltItems.forEach(item => {
@@ -636,14 +804,14 @@
         const y = e.clientY - rect.top;
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
-        const rotateX = (y - centerY) / 15;
-        const rotateY = (centerX - x) / 15;
+        const rotateX = (y - centerY) / 20; // Reduced intensity for luxury feel
+        const rotateY = (centerX - x) / 20;
 
         gsap.to(item, {
           rotateX: rotateX,
           rotateY: rotateY,
           transformPerspective: 1000,
-          duration: 0.4,
+          duration: 0.5,
           ease: 'power2.out'
         });
       });
@@ -652,7 +820,7 @@
         gsap.to(item, {
           rotateX: 0,
           rotateY: 0,
-          duration: 0.6,
+          duration: 0.8,
           ease: 'power2.out'
         });
       });
@@ -684,14 +852,18 @@
     lenis.start();
   }
 
-  lightboxClose.addEventListener('click', (e) => {
-    e.stopPropagation();
-    closeLightbox();
-  });
+  if (lightboxClose) {
+    lightboxClose.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeLightbox();
+    });
+  }
 
-  lightbox.addEventListener('click', (e) => {
-    if (e.target === lightbox) closeLightbox();
-  });
+  if (lightbox) {
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+  }
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeLightbox();
@@ -707,22 +879,30 @@
       e.preventDefault();
 
       const btn = document.getElementById('rsvpSubmitBtn');
+      const originalText = btn.innerHTML;
+      
       btn.innerHTML = '<i class="bi bi-arrow-repeat" style="animation: spin 1s linear infinite;"></i> <span>Sending...</span>';
       btn.disabled = true;
 
+      // Simulate API call
       setTimeout(() => {
-        rsvpForm.style.display = 'none';
-        rsvpSuccess.style.display = 'block';
-
-        gsap.from(rsvpSuccess, {
+        gsap.to(rsvpForm, {
           opacity: 0,
-          y: 20,
-          duration: 0.6,
-          ease: 'power3.out'
-        });
+          y: -20,
+          duration: 0.5,
+          onComplete: () => {
+            rsvpForm.style.display = 'none';
+            rsvpSuccess.style.display = 'block';
 
-        // Confetti burst
-        createConfetti();
+            gsap.fromTo(rsvpSuccess, 
+              { opacity: 0, y: 30 },
+              { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
+            );
+
+            // Confetti burst
+            createConfetti();
+          }
+        });
       }, 1500);
     });
   }
@@ -732,24 +912,30 @@
   function createConfetti() {
     const colors = ['#C9A87C', '#D4AF37', '#B76E79', '#E8C4B8', '#F0E4B0', '#A07D50'];
 
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 100; i++) {
       const confetti = document.createElement('div');
+      
+      // Mix of circles and rectangles
+      const isCircle = Math.random() > 0.5;
+      const width = Math.random() * 8 + 4;
+      const height = isCircle ? width : Math.random() * 10 + 5;
+      
       confetti.style.cssText = `
         position: fixed;
-        width: ${Math.random() * 8 + 4}px;
-        height: ${Math.random() * 8 + 4}px;
+        width: ${width}px;
+        height: ${height}px;
         background: ${colors[Math.floor(Math.random() * colors.length)]};
-        top: -10px;
+        top: -20px;
         left: ${Math.random() * 100}%;
         opacity: ${Math.random() * 0.7 + 0.3};
-        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        border-radius: ${isCircle ? '50%' : '2px'};
         z-index: 99999;
         pointer-events: none;
-        animation: confettiFall ${Math.random() * 2 + 2}s ease-out forwards;
-        animation-delay: ${Math.random() * 0.5}s;
+        animation: confettiFall ${Math.random() * 2.5 + 2}s ease-in forwards;
+        animation-delay: ${Math.random() * 0.8}s;
       `;
       document.body.appendChild(confetti);
-      setTimeout(() => confetti.remove(), 4500);
+      setTimeout(() => confetti.remove(), 5500);
     }
   }
 
@@ -759,15 +945,17 @@
 
   window.addEventListener('scroll', () => {
     if (window.scrollY > 600) {
-      backToTop.classList.add('visible');
+      if(backToTop) backToTop.classList.add('visible');
     } else {
-      backToTop.classList.remove('visible');
+      if(backToTop) backToTop.classList.remove('visible');
     }
   });
 
-  backToTop.addEventListener('click', () => {
-    lenis.scrollTo(0, { duration: 2 });
-  });
+  if (backToTop) {
+    backToTop.addEventListener('click', () => {
+      lenis.scrollTo(0, { duration: 2 });
+    });
+  }
 
 
   // ═══════════ LAZY IMAGE FADE-IN ═══════════
@@ -776,7 +964,7 @@
       img.style.opacity = '1';
     } else {
       img.style.opacity = '0';
-      img.style.transition = 'opacity 0.6s ease';
+      img.style.transition = 'opacity 0.8s ease';
       img.addEventListener('load', () => {
         img.style.opacity = '1';
       });
@@ -785,7 +973,7 @@
 
 
   // ═══════════ HERO CTA SMOOTH SCROLL ═══════════
-  document.querySelectorAll('.hero__ctas a').forEach(link => {
+  document.querySelectorAll('.hero__ctas a, .floating-rsvp').forEach(link => {
     link.addEventListener('click', (e) => {
       const href = link.getAttribute('href');
       if (href && href.startsWith('#')) {
