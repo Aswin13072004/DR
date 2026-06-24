@@ -542,7 +542,7 @@
       
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: block,
+          trigger: '.countdown__grid',
           start: 'top 88%',
           toggleActions: 'play none none none'
         }

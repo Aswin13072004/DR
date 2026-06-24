@@ -602,6 +602,7 @@ a {
   gap: 10px;
   margin-bottom: 32px;
   opacity: 0;
+  flex-wrap: wrap;
 }
 
 .hero__mini-item {
